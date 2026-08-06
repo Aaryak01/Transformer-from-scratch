@@ -82,10 +82,6 @@ content) are in that notebook, run and saved with real output.
 
 ## Bonus: Q&A format fine-tuning
 
-**Status: designed, not yet run** — unlike everything above, this one has
-no verified results yet, and this section won't claim any until it's
-actually been executed.
-
 [`05_qa_finetune.ipynb`](05_qa_finetune.ipynb) is a second fine-tuning
 experiment starting from the same pretrained checkpoint, this time on
 [SQuAD](https://huggingface.co/datasets/squad) (~8M tokens of
@@ -93,19 +89,29 @@ experiment starting from the same pretrained checkpoint, this time on
 of SEC filings. It tests something different from the SEC run: not domain
 vocabulary adaptation, but whether the model can learn a *format* — given
 a question, produce an answer-shaped continuation and stop — as a
-distinct question from whether that answer is *correct*. The notebook
-generates on both SQuAD-style questions and deliberately novel ones,
-specifically so format-learning and factual accuracy can be judged
-separately rather than conflated.
+question distinct from whether that answer is *correct*.
 
-The notebook itself has a results section at the bottom that's an
-explicit fill-in-after-running template, not placeholder numbers dressed
-up as real ones. Once it's actually run in Colab, that section (and this
-one) get updated with what actually happened — including if the honest
-answer is "it produces answer-shaped text but the answers are usually
-wrong," which given the model's size and how little of SQuAD it will have
-seen, is a real possible outcome worth reporting as plainly as a positive
-one would be.
+**Real results (3,000 steps, Colab T4):** loss dropped from train 4.93 →
+2.48, val 4.94 → 2.64, with the sharpest drop in the first 250 steps and
+train/val staying close throughout (no overfitting). Format learning was a
+**partial success** — output is short and actually terminates, unlike the
+base/SEC-tuned model's tendency to ramble — but several generations embed
+a second, hallucinated `Question:`/`Answer:` pair mid-response, so what it
+learned is closer to *"this text involves Q&A exchanges"* than the
+narrower *"stop cleanly after exactly one answer."* Factual accuracy
+**did not work**, as expected at this scale: `"In what year did World War
+II end?"` produced `"1950"` — plausible-shaped (a number, roughly the
+right era), factually wrong. Most other answers, on both SQuAD-style and
+deliberately novel questions, read closer to incoherent word combinations
+than real answers.
+
+**Honest bottom line:** this demonstrates format learning, not question
+answering. The model reliably produces short, answer-shaped, terminated
+output instead of unbounded rambling — that part worked. It does not
+reliably produce correct, or even generally coherent, answers. Those are
+separate claims; this run is real evidence for the first and against the
+second. Full write-up, with the reasoning behind each conclusion, is in
+the notebook's own results section.
 
 ## What this is *not*
 
@@ -167,7 +173,7 @@ architecture, and it's small enough to commit directly.
 ├── 02_tokenizer.ipynb         BPE tokenizer training (vocab_size=8000)
 ├── 03_pretrain.ipynb          Pretraining on Wikitext-103
 ├── 04_finetune.ipynb          Fine-tuning on SEC filings
-├── 05_qa_finetune.ipynb       Bonus: Q&A format fine-tuning on SQuAD (not yet run -- see above)
+├── 05_qa_finetune.ipynb       Bonus: Q&A format fine-tuning on SQuAD (real results -- see above)
 ├── tokenizer/tokenizer.json   Trained tokenizer (checkpoints not included -- see above)
 └── requirements.txt
 ```
