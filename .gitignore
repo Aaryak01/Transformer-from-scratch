@@ -1,0 +1,24 @@
+# Trained checkpoints -- too large for git (model_step14999.pt alone is
+# 419MB, over GitHub's 100MB limit). See README's "Reproducing this"
+# section for regenerating them via 03_pretrain.ipynb / 04_finetune.ipynb.
+checkpoints/
+checkpoints_finetuned/
+*.pt
+*.pth
+
+# Raw scraped/downloaded data -- large, regenerable via 01_data_collection.ipynb
+data/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Editor / OS
+.DS_Store
+.vscode/
+.idea/
