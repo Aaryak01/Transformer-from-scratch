@@ -80,6 +80,33 @@ the SEC-filing corpus, not the Wikipedia pretraining data. Full generated
 samples and the corpus quality analysis (91.2% prose / 8.8% table-like
 content) are in that notebook, run and saved with real output.
 
+## Bonus: Q&A format fine-tuning
+
+**Status: designed, not yet run** — unlike everything above, this one has
+no verified results yet, and this section won't claim any until it's
+actually been executed.
+
+[`05_qa_finetune.ipynb`](05_qa_finetune.ipynb) is a second fine-tuning
+experiment starting from the same pretrained checkpoint, this time on
+[SQuAD](https://huggingface.co/datasets/squad) (~8M tokens of
+`"Question: ...\nAnswer: ..."` pairs from real Wikipedia articles) instead
+of SEC filings. It tests something different from the SEC run: not domain
+vocabulary adaptation, but whether the model can learn a *format* — given
+a question, produce an answer-shaped continuation and stop — as a
+distinct question from whether that answer is *correct*. The notebook
+generates on both SQuAD-style questions and deliberately novel ones,
+specifically so format-learning and factual accuracy can be judged
+separately rather than conflated.
+
+The notebook itself has a results section at the bottom that's an
+explicit fill-in-after-running template, not placeholder numbers dressed
+up as real ones. Once it's actually run in Colab, that section (and this
+one) get updated with what actually happened — including if the honest
+answer is "it produces answer-shaped text but the answers are usually
+wrong," which given the model's size and how little of SQuAD it will have
+seen, is a real possible outcome worth reporting as plainly as a positive
+one would be.
+
 ## What this is *not*
 
 Being upfront about scope, the same way the application README this model
@@ -109,14 +136,15 @@ deployed app.
 Every notebook was run in Google Colab with a T4 GPU (Colab's free tier).
 To reproduce:
 
-1. Open each notebook (`01` → `04`, in order) in Colab.
+1. Open each notebook (`01` → `04`, in order — `05` is optional, branches
+   off after `03`) in Colab.
 2. Runtime → Change runtime type → select a GPU (T4 is sufficient).
 3. Mount your own Google Drive when prompted (each notebook does this) —
    data, tokenizer, and checkpoints are saved there between sessions since
    Colab's local disk is wiped when a session ends.
 4. Run top to bottom. Pretraining (`03`) takes a few hours to reach step
-   15,000 on a T4; fine-tuning (`04`) is much faster (3,000 steps on a
-   7.4M-token corpus).
+   15,000 on a T4; both fine-tuning notebooks (`04`, `05`) are much faster
+   (3,000 steps on a single-digit-millions-of-tokens corpus each).
 
 Or adapt the notebooks to run locally / on your own GPU — the only
 Colab-specific lines are the `drive.mount(...)` calls and `!pip install`
@@ -139,6 +167,7 @@ architecture, and it's small enough to commit directly.
 ├── 02_tokenizer.ipynb         BPE tokenizer training (vocab_size=8000)
 ├── 03_pretrain.ipynb          Pretraining on Wikitext-103
 ├── 04_finetune.ipynb          Fine-tuning on SEC filings
+├── 05_qa_finetune.ipynb       Bonus: Q&A format fine-tuning on SQuAD (not yet run -- see above)
 ├── tokenizer/tokenizer.json   Trained tokenizer (checkpoints not included -- see above)
 └── requirements.txt
 ```
@@ -146,8 +175,8 @@ architecture, and it's small enough to commit directly.
 ## Tech stack
 
 PyTorch · Hugging Face `tokenizers` (BPE training) · Hugging Face
-`datasets` (Wikitext-103) · `requests` + `beautifulsoup4` (SEC EDGAR
-scraping) · `pandas` · trained on Google Colab (T4 GPU)
+`datasets` (Wikitext-103, SQuAD) · `requests` + `beautifulsoup4` (SEC
+EDGAR scraping) · `pandas` · trained on Google Colab (T4 GPU)
 
 ## License
 
